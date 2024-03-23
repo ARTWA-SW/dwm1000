@@ -1594,50 +1594,6 @@ void dwt_write8bitoffsetreg(int regFileID, int regOffset, uint8_t regval);
  *
  ****************************************************************************************************************************************************/
 
-/** ------------------------------------------------------------------------------------------------------------------
- * @fn writetospi()
- *
- * @brief
- * Low level abstract function to write to the SPI
- * Takes two separate byte buffers for write header and write data
- * return 0 for success, or -1 for error
- *
- * @note
- * In porting this to a particular microprocessor, the implementer needs to define the two low
- * level abstract functions to write to and read from the SPI the definitions should be in deca_spi.c file.
- *
- * @param headerLength number of bytes header being written
- * @param headerBuffer pointer to buffer containing the 'headerLength' bytes of header to be written
- * @param bodylength umber of bytes data being written
- * @param bodyBuffer pointer to buffer containing the 'bodylength' bytes od data to be written
- *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
- */
-int writetospi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t bodylength, const uint8_t* bodyBuffer);
-
-/** ------------------------------------------------------------------------------------------------------------------
- * @fn readfromspi()
- *
- * @brief
- * Low level abstract function to read from the SPI
- * Takes two separate byte buffers for write header and read data
- * return 0 for success, or -1 for error
- *
- * @note
- * In porting this to a particular microprocessor, the implementer needs to define the two low
- * level abstract functions to write to and read from the SPI the definitions should be in deca_spi.c file.
- *
- * @param headerLength number of bytes header to write
- * @param headerBuffer pointer to buffer containing the 'headerLength' bytes of header to write
- * @param readlength number of bytes data being read
- * @param readBuffer pointer to buffer containing to return the data
- *
- * @warning size required = headerLength + readlength
- *
- * @returns DWT_SUCCESS for success (and the position in the buffer at which data begins), or DWT_ERROR for error
- */
-int readfromspi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength, uint8_t* readBuffer);
-
 // ---------------------------------------------------------------------------
 //
 // The purpose of the deca_mutex.c file is to provide for microprocessor interrupt enable/disable, this is used for
