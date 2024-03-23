@@ -19,5 +19,11 @@
   ],
   "homepage": "https://www.artwa.kr/",
   "frameworks": "*",
-  "platforms": "*"
+  "platforms": "*",
+  "build": {
+    "flags": [
+      "-I include",
+      "-I deca_driver"
+    ]
+  }
 }
