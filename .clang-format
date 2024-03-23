@@ -1,0 +1,55 @@
+# options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+---
+BasedOnStyle: WebKit
+
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+AlignEscapedNewlines: Right
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+
+BinPackArguments: false
+BinPackParameters: false
+
+BitFieldColonSpacing: After
+
+BreakBeforeBraces: Attach
+BreakBeforeTernaryOperators: true
+
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+IncludeBlocks: Regroup
+
+IndentPPDirectives: BeforeHash
+IndentWidth: 2
+
+InsertNewlineAtEOF: true
+InsertTrailingCommas: None
+
+MaxEmptyLinesToKeep: 1
+
+PointerAlignment: Left
+ReferenceAlignment: Right
+
+ReflowComments: true
+
+SortIncludes: CaseSensitive
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true

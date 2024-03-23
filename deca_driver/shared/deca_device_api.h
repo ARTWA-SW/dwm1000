@@ -18,14 +18,14 @@ extern "C" {
 #endif
 
 #ifndef DWT_NUM_DW_DEV
-#define DWT_NUM_DW_DEV (1)
+  #define DWT_NUM_DW_DEV (1)
 #endif
 
 #include <shared/deca_types.h>
 
 #define DWT_TIME_UNITS (1.0 / 499.2e6 / 128.0) //! = 15.65e-12 s
 
-#define DWT_DEVICE_ID (0xDECA0130) //! DW1000 MP device ID
+#define DWT_DEVICE_ID (0xDECA0130)             //! DW1000 MP device ID
 
 //! enums for selecting the bit rate for data TX (and RX)
 // These are defined for write (with just a shift) the TX_FCTRL register
@@ -155,10 +155,10 @@ typedef enum {
 #define DWT_DW_WUP_NO_UCODE  0x04 // init after wake up - ucode has not already been loaded / ucode is not used
 #define DWT_DW_WUP_RD_OTPREV 0x08 // init after wakeup - read OTP rev after wake up
 typedef enum {
-  DWT_READ_OTP_PID = 0x10, // read part ID from OTP
-  DWT_READ_OTP_LID = 0x20, // read lot ID from OTP
-  DWT_READ_OTP_BAT = 0x40, // read ref voltage from OTP
-  DWT_READ_OTP_TMP = 0x80, // read ref temperature from OTP
+  DWT_READ_OTP_PID = 0x10,        // read part ID from OTP
+  DWT_READ_OTP_LID = 0x20,        // read lot ID from OTP
+  DWT_READ_OTP_BAT = 0x40,        // read ref voltage from OTP
+  DWT_READ_OTP_TMP = 0x80,        // read ref temperature from OTP
 } dwt_read_otp_modes_e;
 
 // DW1000 OTP operating parameter set selection
@@ -213,8 +213,8 @@ typedef struct
 {
   uint32_t status;     // initial value of register as ISR is entered
   uint16_t datalength; // length of frame
-  uint8_t  fctrl[2];   // frame control bytes
-  uint8_t  rx_flags;   // RX frame flags, see above
+  uint8_t fctrl[2];    // frame control bytes
+  uint8_t rx_flags;    // RX frame flags, see above
 } dwt_cb_data_t;
 
 // Call-back type for all events
@@ -228,21 +228,21 @@ typedef void (*dwt_cb_t)(const dwt_cb_data_t*);
  */
 typedef struct
 {
-  uint8_t            chan;           //! channel number {1, 2, 3, 4, 5, 7 }
-  dwt_prf_e          prf;            //! Pulse Repetition Frequency {DWT_PRF_16M or DWT_PRF_64M}
-  dwt_tx_plen_e      txPreambLength; //! DWT_PLEN_64..DWT_PLEN_4096
-  dwt_pac_size_e     rxPAC;          //! Acquisition Chunk Size (Relates to RX preamble length)
-  uint8_t            txCode;         //! TX preamble code
-  uint8_t            rxCode;         //! RX preamble code
-  uint8_t            nsSFD;          //! Boolean should we use non-standard SFD for better performance
-  dwt_uwb_bit_rate_e dataRate;       //! Data Rate {DWT_BR_110K, DWT_BR_850K or DWT_BR_6M8}
-  dwt_phr_mode_e     phrMode;        //! PHR mode {0x0 - standard DWT_PHRMODE_STD, 0x3 - extended frames DWT_PHRMODE_EXT}
-  uint16_t           sfdTO;          //! SFD timeout value (in symbols)
+  uint8_t chan;                 //! channel number {1, 2, 3, 4, 5, 7 }
+  dwt_prf_e prf;                //! Pulse Repetition Frequency {DWT_PRF_16M or DWT_PRF_64M}
+  dwt_tx_plen_e txPreambLength; //! DWT_PLEN_64..DWT_PLEN_4096
+  dwt_pac_size_e rxPAC;         //! Acquisition Chunk Size (Relates to RX preamble length)
+  uint8_t txCode;               //! TX preamble code
+  uint8_t rxCode;               //! RX preamble code
+  uint8_t nsSFD;                //! Boolean should we use non-standard SFD for better performance
+  dwt_uwb_bit_rate_e dataRate;  //! Data Rate {DWT_BR_110K, DWT_BR_850K or DWT_BR_6M8}
+  dwt_phr_mode_e phrMode;       //! PHR mode {0x0 - standard DWT_PHRMODE_STD, 0x3 - extended frames DWT_PHRMODE_EXT}
+  uint16_t sfdTO;               //! SFD timeout value (in symbols)
 } dwt_config_t;
 
 typedef struct
 {
-  uint8_t  PGdly;
+  uint8_t PGdly;
   // TX POWER
   // 31:24     BOOST_0.125ms_PWR
   // 23:16     BOOST_0.25ms_PWR-TX_SHR_PWR
@@ -1478,10 +1478,10 @@ uint16_t dwt_calcpgcount(uint8_t pgdly);
  * no return value
  */
 void dwt_writetodevice(
-    uint16_t       recordNumber, // input parameter - ID of register file or buffer being accessed
-    uint16_t       index,        // input parameter - byte index into register file or buffer being accessed
-    uint32_t       length,       // input parameter - number of bytes being written
-    const uint8_t* buffer        // input parameter - pointer to buffer containing the 'length' bytes to be written
+    uint16_t recordNumber, // input parameter - ID of register file or buffer being accessed
+    uint16_t index,        // input parameter - byte index into register file or buffer being accessed
+    uint32_t length,       // input parameter - number of bytes being written
+    const uint8_t* buffer  // input parameter - pointer to buffer containing the 'length' bytes to be written
 );
 
 /** ------------------------------------------------------------------------------------------------------------------
