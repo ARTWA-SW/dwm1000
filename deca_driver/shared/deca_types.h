@@ -17,12 +17,24 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
+#include <assert.h>
+#include <esp32-hal.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+
+// FreeRTOS
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 typedef enum {
   DWT_SUCCESS = 0,
   DWT_ERROR   = -1
 } dwt_error_e;
+
+#ifndef __INLINE
+  #define __INLINE inline
+#endif
 
 #ifdef __cplusplus
 }

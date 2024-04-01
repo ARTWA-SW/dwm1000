@@ -13,6 +13,9 @@
 #ifndef _DECA_DEVICE_API_H_
 #define _DECA_DEVICE_API_H_
 
+#include "deca_spi.h"
+#include "deca_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,72 +24,70 @@ extern "C" {
   #define DWT_NUM_DW_DEV (1)
 #endif
 
-#include <shared/deca_types.h>
-
 #define DWT_TIME_UNITS (1.0 / 499.2e6 / 128.0) //! = 15.65e-12 s
 
 #define DWT_DEVICE_ID (0xDECA0130)             //! DW1000 MP device ID
 
 //! enums for selecting the bit rate for data TX (and RX)
-// These are defined for write (with just a shift) the TX_FCTRL register
+//! These are defined for write (with just a shift) the TX_FCTRL register
 typedef enum : uint8_t {
-  DWT_BR_110K = 0, //! UWB bit rate 110 kbits/s
-  DWT_BR_850K = 1, //! UWB bit rate 850 kbits/s
-  DWT_BR_6M8  = 2  //! UWB bit rate 6.8 Mbits/s
+  DWT_BR_110K = 0, //!< UWB bit rate 110 kbits/s
+  DWT_BR_850K = 1, //!< UWB bit rate 850 kbits/s
+  DWT_BR_6M8  = 2  //!< UWB bit rate 6.8 Mbits/s
 } dwt_uwb_bit_rate_e;
 
 //! enums for specifying the (Nominal) mean Pulse Repetition Frequency
-// These are defined for direct write (with a shift if necessary) to CHAN_CTRL and TX_FCTRL regs
+//! These are defined for direct write (with a shift if necessary) to CHAN_CTRL and TX_FCTRL regs
 typedef enum {
-  DWT_PRF_16M = 1, //! UWB PRF 16 MHz
-  DWT_PRF_64M = 2, //! UWB PRF 64 MHz
+  DWT_PRF_16M = 1, //!< UWB PRF 16 MHz
+  DWT_PRF_64M = 2, //!< UWB PRF 64 MHz
 } dwt_prf_e;
 
 //! enums for specifying Preamble Acquisition Chunk (PAC) Size in symbols
 typedef enum : uint8_t {
-  DWT_PAC8  = 0, //! PAC  8 (recommended for RX of preamble length  128 and below
-  DWT_PAC16 = 1, //! PAC 16 (recommended for RX of preamble length  256
-  DWT_PAC32 = 2, //! PAC 32 (recommended for RX of preamble length  512
-  DWT_PAC64 = 3  //! PAC 64 (recommended for RX of preamble length 1024 and up
+  DWT_PAC8  = 0, //!< PAC  8 (recommended for RX of preamble length  128 and below
+  DWT_PAC16 = 1, //!< PAC 16 (recommended for RX of preamble length  256
+  DWT_PAC32 = 2, //!< PAC 32 (recommended for RX of preamble length  512
+  DWT_PAC64 = 3  //!< PAC 64 (recommended for RX of preamble length 1024 and up
 } dwt_pac_size_e;
 
 //! enums for specifying TX Preamble length in symbols
-// These are defined to allow them be directly written into byte 2 of the TX_FCTRL register
-// (i.e. a four bit value destined for bits 20..18 but shifted left by 2 for byte alignment)
+//! These are defined to allow them be directly written into byte 2 of the TX_FCTRL register
+//! (i.e. a four bit value destined for bits 20..18 but shifted left by 2 for byte alignment)
 typedef enum : uint8_t {
-  DWT_PLEN_4096 = 0x0C, //! Standard preamble length 4096 symbols
-  DWT_PLEN_2048 = 0x28, //! Non-standard preamble length 2048 symbols
-  DWT_PLEN_1536 = 0x18, //! Non-standard preamble length 1536 symbols
-  DWT_PLEN_1024 = 0x08, //! Standard preamble length 1024 symbols
-  DWT_PLEN_512  = 0x34, //! Non-standard preamble length 512 symbols
-  DWT_PLEN_256  = 0x24, //! Non-standard preamble length 256 symbols
-  DWT_PLEN_128  = 0x14, //! Non-standard preamble length 128 symbols
-  DWT_PLEN_64   = 0x04  //! Standard preamble length 64 symbols
+  DWT_PLEN_4096 = 0x0C, //!< Standard preamble length 4096 symbols
+  DWT_PLEN_2048 = 0x28, //!< Non-standard preamble length 2048 symbols
+  DWT_PLEN_1536 = 0x18, //!< Non-standard preamble length 1536 symbols
+  DWT_PLEN_1024 = 0x08, //!< Standard preamble length 1024 symbols
+  DWT_PLEN_512  = 0x34, //!< Non-standard preamble length 512 symbols
+  DWT_PLEN_256  = 0x24, //!< Non-standard preamble length 256 symbols
+  DWT_PLEN_128  = 0x14, //!< Non-standard preamble length 128 symbols
+  DWT_PLEN_64   = 0x04  //!< Standard preamble length 64 symbols
 } dwt_tx_plen_e;
 
 #define DWT_SFDTOC_DEF 0x1041 // default SFD timeout value
 
 //! enums for selecting PHR modes
 typedef enum : uint8_t {
-  DWT_PHRMODE_STD = 0x0, // standard PHR mode
-  DWT_PHRMODE_EXT = 0x3  // DW proprietary extended frames PHR mode
+  DWT_PHRMODE_STD = 0x0, //!< standard PHR mode
+  DWT_PHRMODE_EXT = 0x3  //!< DW proprietary extended frames PHR mode
 } dwt_phr_mode_e;
 
 //! enums for "mode" bitmask parameter passed into dwt_starttx() function.
 typedef enum {
-  DWT_START_TX_IMMEDIATE = 0, //! Send the frame immediately
-  DWT_START_TX_DELAYED   = 1, //! Send the frame at specified time (time must be less that half period away)
-  DWT_RESPONSE_EXPECTED  = 2  //! Will enable the receiver after TX has completed
+  DWT_START_TX_IMMEDIATE = 0, //!< Send the frame immediately
+  DWT_START_TX_DELAYED   = 1, //!< Send the frame at specified time (time must be less that half period away)
+  DWT_RESPONSE_EXPECTED  = 2  //!< Will enable the receiver after TX has completed
 } dwt_starttx_mode_e;
 
 //! enums for "mode" bitmask parameter passed into dwt_rxenable() function.
 typedef enum {
-  DWT_START_RX_IMMEDIATE = 0, //! Enable the receiver immediately
-  DWT_START_RX_DELAYED   = 1, //! Set up delayed RX, if "late" error triggers, then the RX will be enabled immediately
-  DWT_IDLE_ON_DLY_ERR    = 2, //! If delayed RX failed due to "late" error then if this
-                              //! flag is set the RX will not be re-enabled immediately, and device will be in IDLE when function exits
-  DWT_NO_SYNC_PTRS       = 4  //! Do not try to sync IC side and Host side buffer pointers when enabling RX. This is used to perform manual RX
-                              //! re-enabling when receiving a frame in double buffer mode.
+  DWT_START_RX_IMMEDIATE = 0, //!< Enable the receiver immediately
+  DWT_START_RX_DELAYED   = 1, //!< Set up delayed RX, if "late" error triggers, then the RX will be enabled immediately
+  DWT_IDLE_ON_DLY_ERR    = 2, //!< If delayed RX failed due to "late" error then if this
+                              //!< flag is set the RX will not be re-enabled immediately, and device will be in IDLE when function exits
+  DWT_NO_SYNC_PTRS       = 4  //!< Do not try to sync IC side and Host side buffer pointers when enabling RX. This is used to perform manual RX
+                              //!< re-enabling when receiving a frame in double buffer mode.
 } dwt_startrx_mode_e;
 
 //! enums for "mode" bit field parameter passed to dwt_setleds() function.
@@ -94,71 +95,77 @@ typedef enum {
   DWT_LEDS_DISABLE    = 0x00,
   DWT_LEDS_ENABLE     = 0x01,
   DWT_LEDS_INIT_BLINK = 0x02
-} dwt_setleds_mode_e;
+} dwt_leds_modes_e;
 
 //! enums for "lna_pa" bit field parameter passed to dwt_setlnapamode() function
 typedef enum {
   DWT_LNA_PA_DISABLE = 0x00,
   DWT_LNA_ENABLE     = 0x01,
   DWT_PA_ENABLE      = 0x02
-} dwt_setlnapmodes_e;
+} dwt_lnap_modes_e;
 
 // frame filtering configuration options
 typedef enum {
-  DWT_FF_NOTYPE_EN = 0x000, // no frame types allowed (FF disabled)
-  DWT_FF_COORD_EN  = 0x002, // behave as coordinator (can receive frames with no dest address (PAN ID has to match))
-  DWT_FF_BEACON_EN = 0x004, // beacon frames allowed
-  DWT_FF_DATA_EN   = 0x008, // data frames allowed
-  DWT_FF_ACK_EN    = 0x010, // ack frames allowed
-  DWT_FF_MAC_EN    = 0x020, // mac control frames allowed
-  DWT_FF_RSVD_EN   = 0x040  // reserved frame types allowed
+  DWT_FF_NOTYPE_EN = 0x000, //!< no frame types allowed (FF disabled)
+  DWT_FF_COORD_EN  = 0x002, //!< behave as coordinator (can receive frames with no dest address (PAN ID has to match))
+  DWT_FF_BEACON_EN = 0x004, //!< beacon frames allowed
+  DWT_FF_DATA_EN   = 0x008, //!< data frames allowed
+  DWT_FF_ACK_EN    = 0x010, //!< ack frames allowed
+  DWT_FF_MAC_EN    = 0x020, //!< mac control frames allowed
+  DWT_FF_RSVD_EN   = 0x040, //!< reserved frame types allowed
+  DWT_FF_TYPE4_EN  = 0x080, //!< reserved frame types allowed
+  DWT_FF_TYPE5_EN  = 0x100  //!< reserved frame types allowed
 } dwt_ff_conf_options_e;
 
 // DW1000 interrupt events
-#define DWT_INT_TFRS   0x00000080 // frame sent
-#define DWT_INT_LDED   0x00000400 // micro-code has finished execution
-#define DWT_INT_RFCG   0x00004000 // frame received with good CRC
-#define DWT_INT_RPHE   0x00001000 // receiver PHY header error
-#define DWT_INT_RFCE   0x00008000 // receiver CRC error
-#define DWT_INT_RFSL   0x00010000 // receiver sync loss error
-#define DWT_INT_RFTO   0x00020000 // frame wait timeout
-#define DWT_INT_RXOVRR 0x00100000 // receiver overrun
-#define DWT_INT_RXPTO  0x00200000 // preamble detect timeout
-#define DWT_INT_GPIO   0x00400000 // GPIO interrupt
-#define DWT_INT_SFDT   0x04000000 // SFD timeout
-#define DWT_INT_ARFE   0x20000000 // frame rejected (due to frame filtering configuration)
+typedef enum {
+  DWT_INT_TFRS   = 0x00000080, //!< frame sent
+  DWT_INT_LDED   = 0x00000400, //!< micro-code has finished execution
+  DWT_INT_RFCG   = 0x00004000, //!< frame received with good CRC
+  DWT_INT_RPHE   = 0x00001000, //!< receiver PHY header error
+  DWT_INT_RFCE   = 0x00008000, //!< receiver CRC error
+  DWT_INT_RFSL   = 0x00010000, //!< receiver sync loss error
+  DWT_INT_RFTO   = 0x00020000, //!< frame wait timeout
+  DWT_INT_RXOVRR = 0x00100000, //!< receiver overrun
+  DWT_INT_RXPTO  = 0x00200000, //!< preamble detect timeout
+  DWT_INT_GPIO   = 0x00400000, //!< GPIO interrupt
+  DWT_INT_SFDT   = 0x04000000, //!< SFD timeout
+  DWT_INT_ARFE   = 0x20000000  //!< frame rejected (due to frame filtering configuration)
+} dwt_interrupt_events_e;
 
 // DW1000 SLEEP and WAKEUP configuration parameters
 typedef enum {
-  DWT_PRESRV_SLEEP = 0x0100, // PRES_SLEEP - on wakeup preserve sleep bit
-  DWT_LOADOPSET    = 0x0080, // ONW_L64P - on wakeup load operating parameter set for 64 PSR
-  DWT_CONFIG       = 0x0040, // ONW_LDC - on wakeup restore (load) the saved configurations (from AON array into HIF)
-  DWT_LOADEUI      = 0x0008, // ONW_LEUI - on wakeup load EUI
-  DWT_RX_EN        = 0x0002, // ONW_RX - on wakeup activate reception
-  DWT_TANDV        = 0x0001  // ONW_RADC - on wakeup run ADC to sample temperature and voltage sensor values
+  DWT_PRESRV_SLEEP = 0x0100, //!< PRES_SLEEP - on wakeup preserve sleep bit
+  DWT_LOADOPSET    = 0x0080, //!< ONW_L64P - on wakeup load operating parameter set for 64 PSR
+  DWT_CONFIG       = 0x0040, //!< ONW_LDC - on wakeup restore (load) the saved configurations (from AON array into HIF)
+  DWT_LOADEUI      = 0x0008, //!< ONW_LEUI - on wakeup load EUI
+  DWT_RX_EN        = 0x0002, //!< ONW_RX - on wakeup activate reception
+  DWT_TANDV        = 0x0001  //!< ONW_RADC - on wakeup run ADC to sample temperature and voltage sensor values
 } dwt_on_wake_param_e;
 
 typedef enum {
-  DWT_XTAL_EN     = 0x10, // keep XTAL running during sleep
-  DWT_WAKE_SLPCNT = 0x8,  // wake up after sleep count
-  DWT_WAKE_CS     = 0x4,  // wake up on chip select
-  DWT_WAKE_WK     = 0x2,  // wake up on WAKEUP PIN
-  DWT_SLP_EN      = 0x1   // enable sleep/deep sleep functionality
+  DWT_XTAL_EN     = 0x10, //!< keep XTAL running during sleep
+  DWT_WAKE_SLPCNT = 0x8,  //!< wake up after sleep count
+  DWT_WAKE_CS     = 0x4,  //!< wake up on chip select
+  DWT_WAKE_WK     = 0x2,  //!< wake up on WAKEUP PIN
+  DWT_SLP_EN      = 0x1   //!< enable sleep/deep sleep functionality
 } dwt_wkup_param_e;
 
 // DWT_DW_POWER_ON should be used when dwt_initialise is called on cold power up of DW IC
 // When DW IC is being initialised after wake up then some of the init steps can be skipped
 // DW1000 INIT configuration parameters
-#define DWT_LOADNONE         0x00 // no loading of micro-code or reading of OTP values
-#define DWT_LOADUCODE        0x01 // this can be called on power up or after wake up to load ucode
-#define DWT_DW_WAKE_UP       0x02 // init after wake up - will not load ucode / ucode will not run
-#define DWT_DW_WUP_NO_UCODE  0x04 // init after wake up - ucode has not already been loaded / ucode is not used
-#define DWT_DW_WUP_RD_OTPREV 0x08 // init after wakeup - read OTP rev after wake up
 typedef enum {
-  DWT_READ_OTP_PID = 0x10,        // read part ID from OTP
-  DWT_READ_OTP_LID = 0x20,        // read lot ID from OTP
-  DWT_READ_OTP_BAT = 0x40,        // read ref voltage from OTP
-  DWT_READ_OTP_TMP = 0x80,        // read ref temperature from OTP
+  DWT_LOADNONE         = 0x00, // no loading of micro-code or reading of OTP values
+  DWT_LOADUCODE        = 0x01, // this can be called on power up or after wake up to load ucode
+  DWT_DW_WAKE_UP       = 0x02, // init after wake up - will not load ucode / ucode will not run
+  DWT_DW_WUP_NO_UCODE  = 0x04, // init after wake up - ucode has not already been loaded / ucode is not used
+  DWT_DW_WUP_RD_OTPREV = 0x08, // init after wake up - read OTP rev after wake up
+} dwt_init_modes_e;
+typedef enum {
+  DWT_READ_OTP_PID = 0x10, // read part ID from OTP
+  DWT_READ_OTP_LID = 0x20, // read lot ID from OTP
+  DWT_READ_OTP_BAT = 0x40, // read ref voltage from OTP
+  DWT_READ_OTP_TMP = 0x80, // read ref temperature from OTP
 } dwt_read_otp_modes_e;
 
 // DW1000 OTP operating parameter set selection
@@ -203,7 +210,9 @@ typedef enum {
 #define HERTZ_TO_PPM_MULTIPLIER_CHAN_1 (-1.0e6 / 3494.4e6)
 #define HERTZ_TO_PPM_MULTIPLIER_CHAN_2 (-1.0e6 / 3993.6e6)
 #define HERTZ_TO_PPM_MULTIPLIER_CHAN_3 (-1.0e6 / 4492.8e6)
+#define HERTZ_TO_PPM_MULTIPLIER_CHAN_4 (-1.0e6 / 4492.8e6)
 #define HERTZ_TO_PPM_MULTIPLIER_CHAN_5 (-1.0e6 / 6489.6e6)
+#define HERTZ_TO_PPM_MULTIPLIER_CHAN_7 (-1.0e6 / 6489.6e6)
 
 // Call-back data RX frames flags
 #define DWT_CB_DATA_RX_FLAG_RNG 0x1 // Ranging bit
@@ -331,7 +340,8 @@ int32_t dwt_apiversion(void);
  *
  * @param index selects the array element to point to. Must be within the array bounds, i.e. < DWT_NUM_DW_DEV
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error
  */
 int dwt_setlocaldataptr(unsigned int index);
 
@@ -500,7 +510,8 @@ int dwt_getgpiovalue(uint32_t gpioNum);
  *                  DWT_READ_OTP_BAT     0x40 - read ref voltage from OTP
  *                  DWT_READ_OTP_TMP     0x80 - read ref temperature from OTP
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error
  */
 int dwt_initialise(int config);
 
@@ -521,7 +532,7 @@ void dwt_configurefor64plen(int prf);
  * @fn dwt_configure()
  *
  * @brief This function provides the main API for the configuration of the
- * DW1000 and this low-level driver.  The input is a pointer to the data structure
+ * DW1000 and this low-level driver. The input is a pointer to the data structure
  * of type dwt_config_t that holds all the configurable items.
  * The dwt_config_t structure shows which ones are supported
  *
@@ -594,7 +605,8 @@ void dwt_setsmarttxpower(int enable);
  * @param txFrameBytes Pointer to the user's buffer containing the data to send.
  * @param txBufferOffset This specifies an offset in the DW1000�s TX Buffer at which to start writing data.
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error
  */
 int dwt_writetxdata(uint16_t txFrameLength, uint8_t* txFrameBytes, uint16_t txBufferOffset);
 
@@ -624,7 +636,8 @@ void dwt_writetxfctrl(uint16_t txFrameLength, uint16_t txBufferOffset, int rangi
  *             if mode = DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED - immediate TX (response expected - so the receiver will be automatically turned on after TX is done)
  *             if mode = DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED - delayed TX (response expected - so the receiver will be automatically turned on after TX is done)
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error (e.g. a delayed transmission will be cancelled if the delayed time has passed)
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error (e.g. a delayed transmission will be cancelled if the delayed time has passed)
  */
 int dwt_starttx(uint8_t mode);
 
@@ -755,7 +768,8 @@ void dwt_syncrxbufptrs(void);
  * (DWT_START_RX_IMMEDIATE | DWT_NO_SYNC_PTRS) 4 used to re-enable RX without trying to sync IC and host side buffer pointers, typically when
  *                                               performing manual RX re-enabling in double buffering mode
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error (e.g. a delayed receive enable will be too far in the future if delayed time has passed)
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error (e.g. a delayed receive enable will be too far in the future if delayed time has passed)
  */
 int dwt_rxenable(int mode);
 
@@ -958,7 +972,8 @@ void dwt_entersleepaftertx(int enable);
  * @param buff this is a pointer to the dummy buffer which will be used in the SPI read transaction used for the WAKE UP of the device
  * @param length this is the length of the dummy buffer
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error
  */
 int dwt_spicswakeup(uint8_t* buff, uint16_t length);
 
@@ -1198,7 +1213,7 @@ void dwt_readaccdata(uint8_t* buffer, uint16_t length, uint16_t rxBufferOffset);
  *
  * @brief This is used to read the RX carrier integrator value (relating to the frequency offset of the TX node)
  *
- * @returns value - the (int32_t) signed carrier integrator value.
+ * @returns the (int32_t) signed carrier integrator value.
  *                A positive value means the local RX clock is running faster than the remote TX device.
  */
 int32_t dwt_readcarrierintegrator(void);
@@ -1258,7 +1273,8 @@ void dwt_readeventcounters(dwt_deviceentcnts_t* counters);
  * @param value this is the 32-bit value to be programmed into OTP
  * @param address this is the 16-bit OTP address into which the 32-bit value is programmed
  *
- * @returns DWT_SUCCESS for success, or DWT_ERROR for error
+ * @retval DWT_SUCCESS for success
+ * @retval DWT_ERROR for error
  */
 int dwt_otpwriteandverify(uint32_t value, uint16_t address);
 
@@ -1618,7 +1634,8 @@ typedef int decaIrqStatus_t; // Type for remembering IRQ status
  *
  * @note The body of this function is defined in deca_mutex.c and is platform specific
  *
- * @returns the state of the DW1000 interrupt
+ * @retval pdPASS Critical section entered (spinlock taken)
+ * @retval pdFAIL If timed out waiting for spinlock (will not occur if using portMUX_NO_TIMEOUT)
  */
 decaIrqStatus_t decamutexon(void);
 
@@ -1632,7 +1649,7 @@ decaIrqStatus_t decamutexon(void);
  *
  * @param s the state of the DW1000 interrupt as returned by decamutexon
  *
- * @returns the state of the DW1000 interrupt
+ * no return value
  */
 void decamutexoff(decaIrqStatus_t s);
 
@@ -1640,13 +1657,27 @@ void decamutexoff(decaIrqStatus_t s);
  * @fn deca_sleep()
  *
  * @brief Wait for a given amount of time.
- * @warning The body of this function is defined in deca_sleep.c and is platform specific
+ *
+ * @note The body of this function is defined in deca_sleep.c and is platform specific
  *
  * @param time_ms time to wait in milliseconds
  *
  * no return value
  */
 void deca_sleep(unsigned int time_ms);
+
+/** ------------------------------------------------------------------------------------------------------------------
+ * @fn deca_usleep()
+ *
+ * @brief Wait for a given amount of time.
+ *
+ * @note The body of this function is defined in deca_sleep.c and is platform specific
+ *
+ * @param time_us time to wait in microseconds
+ *
+ * no return value
+ */
+void deca_usleep(unsigned long time_us);
 
 #ifdef __cplusplus
 }

@@ -18,9 +18,8 @@
 extern "C" {
 #endif
 
-#include <shared/deca_types.h>
-
-#define DECA_MAX_SPI_HEADER_LENGTH (3) // max number of bytes in header (for formating & sizing)
+#include "deca_types.h"
+#include "port.h"
 
 /** ------------------------------------------------------------------------------------------------------------------
  * @fn openspi()
@@ -56,14 +55,14 @@ int closespi(void);
  * In porting this to a particular microprocessor, the implementer needs to define the two low
  * level abstract functions to write to and read from the SPI the definitions should be in deca_spi.c file.
  *
- * @param headerLength number of bytes header being written
- * @param headerBuffer pointer to buffer containing the 'headerLength' bytes of header to be written
- * @param bodylength umber of bytes data being written
- * @param bodyBuffer pointer to buffer containing the 'bodylength' bytes od data to be written
+ * @param[in] headerLength number of bytes header being written
+ * @param[in] headerBuffer pointer to buffer containing the `headerLength` bytes of header to be written
+ * @param[in] bodyLength umber of bytes data being written
+ * @param[in] bodyBuffer pointer to buffer containing the `bodylength` bytes od data to be written
  *
  * @returns DWT_SUCCESS for success, or DWT_ERROR for error
  */
-int writetospi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t bodylength, const uint8_t* bodyBuffer);
+int writetospi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t bodyLength, const uint8_t* bodyBuffer);
 
 /** ------------------------------------------------------------------------------------------------------------------
  * @fn readfromspi()
@@ -77,16 +76,28 @@ int writetospi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t body
  * In porting this to a particular microprocessor, the implementer needs to define the two low
  * level abstract functions to write to and read from the SPI the definitions should be in deca_spi.c file.
  *
- * @param headerLength number of bytes header to write
- * @param headerBuffer pointer to buffer containing the 'headerLength' bytes of header to write
- * @param readlength number of bytes data being read
- * @param readBuffer pointer to buffer containing to return the data
+ * @param[in] headerLength number of bytes header to write
+ * @param[in] headerBuffer pointer to buffer containing the 'headerLength' bytes of header to write
+ * @param[in] readLength number of bytes data being read
+ * @param[out] readBuffer pointer to buffer containing to return the data
  *
  * @warning size required = headerLength + readlength
  *
  * @returns DWT_SUCCESS for success (and the position in the buffer at which data begins), or DWT_ERROR for error
  */
-int readfromspi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength, uint8_t* readBuffer);
+int readfromspi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readLength, uint8_t* readBuffer);
+
+/**
+ * @fn      port_set_dw1000_fastrate
+ * @brief   sets High SPI clock speed for the DW chip
+ */
+void port_set_dw1000_fastrate(void);
+/**
+ * @fn  port_set_dw1000_slowrate
+ * @brief sets slow SPI clock speed for the DW chip
+ *        left for compatibility.
+ */
+void port_set_dw1000_slowrate(void);
 
 #ifdef __cplusplus
 }

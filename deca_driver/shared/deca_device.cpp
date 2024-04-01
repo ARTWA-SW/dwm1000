@@ -13,10 +13,8 @@
 #include "deca_device_api.h"
 #include "deca_param_types.h"
 #include "deca_regs.h"
-#include "deca_types.h"
 
-#include <assert.h>
-#include <stdlib.h>
+#include <Arduino.h>
 
 // Defines for enable_clocks function
 #define FORCE_SYS_XTI  0
@@ -34,7 +32,7 @@
 // Frame control maximum length in bytes.
 #define FCTRL_LEN_MAX      2
 
-// #define DWT_API_ERROR_CHECK     // define so API checks config input parameters
+// #define DWT_API_ERROR_CHECK // define so API checks config input parameters
 
 // -------------------------------------------------------------------------------------------------------------------
 //
@@ -226,7 +224,7 @@ int dwt_initialise(int config) {
   pdw1000local->cbRxTo   = NULL;
   pdw1000local->cbRxErr  = NULL;
 
-#if DWT_API_ERROR_CHECK
+#ifdef DWT_API_ERROR_CHECK
   pdw1000local->otp_mask = config; // Save the READ_OTP config mask
 #endif
 
@@ -243,7 +241,7 @@ int dwt_initialise(int config) {
 
   if (!((DWT_DW_WAKE_UP & config) && ((DWT_READ_OTP_TMP | DWT_READ_OTP_BAT | DWT_READ_OTP_LID | DWT_READ_OTP_PID | DWT_DW_WUP_RD_OTPREV) & config))) {
     _dwt_enableclocks(FORCE_SYS_XTI); // NOTE: set system clock to XTI - this is necessary to make sure the values read by _dwt_otpread are reliable
-  } // when not reading from OTP, clocks don't need to change.
+  }                                   // when not reading from OTP, clocks don't need to change.
 
   // Configure the CPLL lock detect
   dwt_write8bitoffsetreg(EXT_SYNC_ID, EC_CTRL_OFFSET, EC_CTRL_PLLLCK);
@@ -596,13 +594,12 @@ void dwt_writetxfctrl(uint16_t txFrameLength, uint16_t txBufferOffset, int rangi
 #ifdef DWT_API_ERROR_CHECK
   assert((pdw1000local->longFrames && (txFrameLength <= 1023)) || (txFrameLength <= 127));
   assert((txBufferOffset + txFrameLength) <= 1024);
-  assert((ranging == 0) || (ranging == 1))
+  assert((ranging == 0) || (ranging == 1));
 #endif
 
-      // Write the frame length to the TX frame control register
-      // pdw1000local->txFCTRL has kept configured bit rate information
-      uint32_t reg32
-      = pdw1000local->txFCTRL | txFrameLength | ((uint32_t)txBufferOffset << TX_FCTRL_TXBOFFS_SHFT) | ((uint32_t)ranging << TX_FCTRL_TR_SHFT);
+  // Write the frame length to the TX frame control register
+  // pdw1000local->txFCTRL has kept configured bit rate information
+  uint32_t reg32 = pdw1000local->txFCTRL | txFrameLength | ((uint32_t)txBufferOffset << TX_FCTRL_TXBOFFS_SHFT) | ((uint32_t)ranging << TX_FCTRL_TR_SHFT);
   dwt_write32bitreg(TX_FCTRL_ID, reg32);
 } // end dwt_writetxfctrl()
 
@@ -1943,13 +1940,12 @@ uint8_t dwt_convertdegtemptoraw(int16_t externaltemp) {
   int32_t raw_temp;
 #ifdef DWT_API_ERROR_CHECK
   assert(pdw1000local->otp_mask & DWT_READ_OTP_TMP);
-  assert((externaltemp > -800) && (externaltemp < 1500))
+  assert((externaltemp > -800) && (externaltemp < 1500));
 #endif
-      // the User Manual formula is: Temperature (�C) = ( (SAR_LTEMP � OTP_READ(Vtemp @ 23�C) ) x 1.14) + 23
-      raw_temp
-      = ((externaltemp - 230 + 5) * DCELCIUS_TO_SAR_TEMP_CONV); //+5 for better rounding
+  // the User Manual formula is: Temperature (�C) = ( (SAR_LTEMP � OTP_READ(Vtemp @ 23�C) ) x 1.14) + 23
+  raw_temp = ((externaltemp - 230 + 5) * DCELCIUS_TO_SAR_TEMP_CONV); //+5 for better rounding
 
-  if (raw_temp < 0)                                             // negative
+  if (raw_temp < 0)                                                  // negative
   {
     raw_temp = (-raw_temp >> 8);
     raw_temp = -raw_temp;

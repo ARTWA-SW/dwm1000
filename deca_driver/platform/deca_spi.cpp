@@ -13,7 +13,14 @@
 
 #include "deca_spi.h"
 
-// extern SPI_HandleTypeDef hspi1; /*clocked from 72MHz*/
+const SPISettings _fastSPI     = SPISettings(20000000L, SPI_MSBFIRST, SPI_MODE0);
+const SPISettings _slowSPI     = SPISettings(2000000L, SPI_MSBFIRST, SPI_MODE2);
+const SPISettings* _currentSPI = &_fastSPI;
+
+SPIClass* _spi;
+uint8_t _ss;
+uint8_t _irq;
+uint8_t _rst;
 
 /********************************************************************************
  *
@@ -22,78 +29,52 @@
  *******************************************************************************/
 
 int openspi() {
+  _spi->beginTransaction(*_currentSPI);
+  digitalWrite(_ss, LOW);
   return 0;
 } // end openspi()
 
 int closespi(void) {
+  digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
   return 0;
 } // end closespi()
 
-int writetospi(uint16_t headerLength,
-               const uint8_t* headerBuffer,
-               uint32_t bodyLength,
-               const uint8_t* bodyBuffer) {
-  //   decaIrqStatus_t stat;
-  //   stat = decamutexon();
+int writetospi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t bodyLength, const uint8_t* bodyBuffer) {
+  decaIrqStatus_t stat;
+  stat = decamutexon();
+  openspi();
 
-  //   while (HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY)
-  //     ;
+  _spi->transferBytes(headerBuffer, NULL, headerLength); // send header
+  _spi->transferBytes(bodyBuffer, NULL, bodyLength);     // write values
 
-  //   HAL_GPIO_WritePin(DW_NSS_GPIO_Port, DW_NSS_Pin, GPIO_PIN_RESET);                   /**< Put chip select line low */
-
-  //   HAL_SPI_Transmit(&hspi1, (uint8_t*)&headerBuffer[0], headerLength, HAL_MAX_DELAY); /* Send header in polling mode */
-  //   HAL_SPI_Transmit(&hspi1, (uint8_t*)&bodyBuffer[0], bodyLength, HAL_MAX_DELAY);     /* Send data in polling mode */
-
-  //   HAL_GPIO_WritePin(DW_NSS_GPIO_Port, DW_NSS_Pin, GPIO_PIN_SET);                     /**< Put chip select line high */
-
-  //   decamutexoff(stat);
+  closespi();
+  decamutexoff(stat);
 
   return 0;
 } // end writetospi()
 
-int readfromspi(uint16_t headerLength,
-                const uint8_t* headerBuffer,
-                uint32_t readlength,
-                uint8_t* readBuffer) {
-  //   int i;
-  //   decaIrqStatus_t stat;
-  //   stat = decamutexon();
+int readfromspi(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readLength, uint8_t* readBuffer) {
+  decaIrqStatus_t stat;
+  stat = decamutexon();
+  openspi();
 
-  //   /* Blocking: Check whether previous transfer has been finished */
-  //   while (HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY)
-  //     ;
+  _spi->transferBytes(headerBuffer, NULL, headerLength); // send header
+  _spi->transferBytes(NULL, readBuffer, readLength);     // read values
 
-  //   HAL_GPIO_WritePin(DW_NSS_GPIO_Port, DW_NSS_Pin, GPIO_PIN_RESET); /**< Put chip select line low */
-
-  //   /* Send header */
-  //   for (i = 0; i < headerLength; i++) {
-  //     HAL_SPI_Transmit(&hspi1, &headerBuffer[i], 1, HAL_MAX_DELAY); // No timeout
-  //   }
-
-  //   /* for the data buffer use LL functions directly as the HAL SPI read function
-  //    * has issue reading single bytes */
-  //   while (readlength-- > 0) {
-  //     /* Wait until TXE flag is set to send data */
-  //     while (__HAL_SPI_GET_FLAG(&hspi1, SPI_FLAG_TXE) == RESET) {
-  //     }
-
-  //     hspi1.Instance->DR = 0; /* set output to 0 (MOSI), this is necessary for
-  //     e.g. when waking up DW1000 from DEEPSLEEP via dwt_spicswakeup() function.
-  //     */
-
-  //     /* Wait until RXNE flag is set to read data */
-  //     while (__HAL_SPI_GET_FLAG(&hspi1, SPI_FLAG_RXNE) == RESET) {
-  //     }
-
-  //     (*readBuffer++) = hspi1.Instance->DR; // copy data read form (MISO)
-  //   }
-
-  //   HAL_GPIO_WritePin(DW_NSS_GPIO_Port, DW_NSS_Pin, GPIO_PIN_SET); /**< Put chip select line high */
-
-  //   decamutexoff(stat);
+  closespi();
+  decamutexoff(stat);
 
   return 0;
 } // end readfromspi()
+
+void port_set_dw1000_fastrate(void) {
+  _currentSPI = &_fastSPI;
+}
+
+void port_set_dw1000_slowrate(void) {
+  _currentSPI = &_slowSPI;
+}
 
 /********************************************************************************
  *
