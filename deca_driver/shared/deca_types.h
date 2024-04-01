@@ -36,6 +36,8 @@ typedef enum {
   #define __INLINE inline
 #endif
 
+typedef bool boolean;
+
 #ifdef __cplusplus
 }
 #endif
