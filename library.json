@@ -1,13 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
-  "name": "dwm1000",
+  "name": "esp32-dw1000",
   "version": "0.0.1",
   "description": "A \"Hello world\" program is a computer program that outputs \"Hello World\" (or some variant) on a display device",
   "keywords": "wireless, communication, dw1000, dwm1000, esp32, decawave, qorvo, uwb",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/ARTWA-SW/dwm1000.git"
+    "url": "https://github.com/ARTWA-SW/esp32-dw1000.git"
   },
   "authors":
   [
@@ -21,9 +21,12 @@
   "frameworks": "*",
   "platforms": "*",
   "build": {
+    "srcDir": ".",
+    "includeDir": ".",
     "flags": [
       "-I include",
-      "-I deca_driver"
+      "-I deca_driver/platform",
+      "-I deca_driver/shared"
     ]
   }
 }
